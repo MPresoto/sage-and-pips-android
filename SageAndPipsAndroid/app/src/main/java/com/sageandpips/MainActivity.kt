@@ -1,11 +1,13 @@
 package com.sageandpips
 
 import android.graphics.BitmapFactory
+import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -18,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -39,14 +40,15 @@ private val PaleGreen = Color(0xFFE8EEE3)
 private val Terracotta = Color(0xFFC77958)
 private val Card = Color(0xFFFFFCF6)
 
-private enum class PetAction(val label: String, val icon: String, val caption: String) {
-    TUMMY("Rub tummy", "♡", "A gentle tummy rub"),
-    FEED("Feed", "🥣", "Sage and Pips share a tasty meal"),
-    DRINK("Water", "💧", "A refreshing drink together"),
-    SLEEP("Sleep", "☾", "A cozy little nap"),
-    PLAY("Play", "✦", "Feather-toy fun"),
-    ZOOMIES("Zoomies", "➜", "Happy paws on the move!"),
-    WRESTLE("Play fight", "🐾", "A friendly tumble, then a cuddle")
+private enum class PetSound { MEOW, PURR }
+private enum class PetAction(val label: String, val icon: String, val caption: String, val sound: PetSound) {
+    TUMMY("Rub tummy", "♡", "A gentle tummy rub", PetSound.PURR),
+    FEED("Feed", "🥣", "Sage and Pips share a tasty meal", PetSound.MEOW),
+    DRINK("Water", "💧", "A refreshing drink together", PetSound.PURR),
+    SLEEP("Sleep", "☾", "A cozy little nap", PetSound.PURR),
+    PLAY("Play", "✦", "Feather-toy fun", PetSound.MEOW),
+    ZOOMIES("Zoomies", "➜", "Happy paws on the move!", PetSound.MEOW),
+    WRESTLE("Play fight", "🐾", "A friendly tumble, then a cuddle", PetSound.MEOW)
 }
 
 class MainActivity : ComponentActivity() {
@@ -64,15 +66,21 @@ private fun SageAndPipsApp() {
     var joy by remember { mutableIntStateOf(prefs.getInt("joy", 76)) }
     var energy by remember { mutableIntStateOf(prefs.getInt("energy", 82)) }
     var water by remember { mutableIntStateOf(prefs.getInt("water", 72)) }
+    var soundEnabled by remember { mutableStateOf(prefs.getBoolean("sound", true)) }
+    var player by remember { mutableStateOf<MediaPlayer?>(null) }
     var action by remember { mutableStateOf(PetAction.FEED) }
     var frame by remember { mutableIntStateOf(0) }
-    var note by remember { mutableStateOf("Tap an activity to see Sage and Pips spring into action.") }
+    var note by remember { mutableStateOf("Tap an activity to see Sage and Pips take their turns.") }
+
+    DisposableEffect(Unit) {
+        onDispose { player?.let { active -> runCatching { if (active.isPlaying) active.stop(); active.release() } } }
+    }
 
     LaunchedEffect(action) {
         frame = 0
         while (true) {
-            delay(if (action == PetAction.SLEEP) 420L else 210L)
-            frame = (frame + 1) % 4
+            delay(if (action == PetAction.SLEEP) 850L else 600L)
+            frame = (frame + 1) % 8
         }
     }
 
@@ -81,19 +89,33 @@ private fun SageAndPipsApp() {
         joy = j.coerceIn(0, 100)
         energy = e.coerceIn(0, 100)
         water = w.coerceIn(0, 100)
-        prefs.edit().putInt("hunger", hunger).putInt("joy", joy)
-            .putInt("energy", energy).putInt("water", water).apply()
+        prefs.edit().putInt("hunger", hunger).putInt("joy", joy).putInt("energy", energy).putInt("water", water).apply()
+    }
+
+    fun playSound(sound: PetSound) {
+        player?.let { active -> runCatching { if (active.isPlaying) active.stop(); active.release() } }
+        player = null
+        if (!soundEnabled) return
+        val next = MediaPlayer.create(context, if (sound == PetSound.MEOW) R.raw.cat_meow else R.raw.cat_purr) ?: return
+        next.setVolume(0.48f, 0.48f)
+        next.setOnCompletionListener { finished ->
+            finished.release()
+            if (player == finished) player = null
+        }
+        player = next
+        next.start()
     }
 
     fun doAction(next: PetAction) {
         action = next
+        playSound(next.sound)
         when (next) {
-            PetAction.TUMMY -> { save(j = joy + 14); note = "Sage purrs while Pips leans in for a cuddle." }
-            PetAction.FEED -> { save(h = hunger + 24, e = energy + 3); note = "Yum! Sage and Pips are sharing their meal." }
-            PetAction.DRINK -> { save(w = water + 28); note = "Lap, lap! Their water bowls are topped up." }
-            PetAction.SLEEP -> { save(e = energy + 25, h = hunger - 3); note = "Two sleepy friends curl up for a peaceful nap." }
-            PetAction.PLAY -> { save(j = joy + 20, e = energy - 12, h = hunger - 5, w = water - 4); note = "They take turns chasing the feather toy." }
-            PetAction.ZOOMIES -> { save(j = joy + 24, e = energy - 22, h = hunger - 7, w = water - 6); note = "Zoom! The happy paws are everywhere." }
+            PetAction.TUMMY -> { save(j = joy + 14); note = "Sage purrs through a turn, then Pips gets a turn." }
+            PetAction.FEED -> { save(h = hunger + 24, e = energy + 3); note = "One by one, they enjoy their meal." }
+            PetAction.DRINK -> { save(w = water + 28); note = "One by one, they stop for a drink." }
+            PetAction.SLEEP -> { save(e = energy + 25, h = hunger - 3); note = "Sage settles first; Pips has a cozy turn next." }
+            PetAction.PLAY -> { save(j = joy + 20, e = energy - 12, h = hunger - 5, w = water - 4); note = "Sage bats the feather, then Pips takes a turn." }
+            PetAction.ZOOMIES -> { save(j = joy + 24, e = energy - 22, h = hunger - 7, w = water - 6); note = "Sage dashes first, then Pips has the zoomies." }
             PetAction.WRESTLE -> { save(j = joy + 16, e = energy - 12, h = hunger - 4); note = "A gentle play fight ends in a friendly cuddle." }
         }
     }
@@ -109,9 +131,11 @@ private fun SageAndPipsApp() {
                     Text("YOUR LITTLE COMPANIONS", color = Muted, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.6.sp)
                     Text("Sage & Pips", color = Ink, fontSize = 25.sp, fontWeight = FontWeight.Bold)
                 }
-                Box(Modifier.size(42.dp).clip(CircleShape).background(PaleGreen), contentAlignment = Alignment.Center) {
-                    Text("☀", fontSize = 21.sp, color = SageGreen)
-                }
+                Box(
+                    Modifier.size(44.dp).clip(CircleShape).background(PaleGreen)
+                        .clickable { soundEnabled = !soundEnabled; prefs.edit().putBoolean("sound", soundEnabled).apply(); if (!soundEnabled) playSound(PetSound.PURR) },
+                    contentAlignment = Alignment.Center
+                ) { Text(if (soundEnabled) "🔊" else "🔇", fontSize = 20.sp) }
             }
             Spacer(Modifier.height(14.dp))
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -145,7 +169,7 @@ private fun SageAndPipsApp() {
 
             Spacer(Modifier.height(18.dp))
             Text("Spend a moment together", modifier = Modifier.fillMaxWidth(), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Ink)
-            Text("Choose an activity to see them move.", modifier = Modifier.fillMaxWidth().padding(top = 3.dp), fontSize = 13.sp, color = Muted)
+            Text("Choose an activity to see them take turns.", modifier = Modifier.fillMaxWidth().padding(top = 3.dp), fontSize = 13.sp, color = Muted)
             Spacer(Modifier.height(11.dp))
             ActionRow(PetAction.TUMMY, PetAction.FEED, action, ::doAction)
             Spacer(Modifier.height(9.dp))
@@ -184,13 +208,15 @@ private fun PixelCats(action: PetAction, frame: Int, modifier: Modifier = Modifi
     val bitmap = remember(resource) { BitmapFactory.decodeResource(context.resources, resource).asImageBitmap() }
     Canvas(modifier) {
         val cellW = bitmap.width / 4
-        val cellH = bitmap.height
+        val cellH = bitmap.height / 2
+        val srcX = (frame % 4) * cellW
+        val srcY = (frame / 4) * cellH
         val ratio = cellW.toFloat() / cellH
         val destW = min(size.width, size.height * ratio)
         val destH = destW / ratio
         drawImage(
             image = bitmap,
-            srcOffset = IntOffset(frame * cellW, 0),
+            srcOffset = IntOffset(srcX, srcY),
             srcSize = IntSize(cellW, cellH),
             dstOffset = IntOffset(((size.width - destW) / 2).roundToInt(), ((size.height - destH) / 2).roundToInt()),
             dstSize = IntSize(destW.roundToInt(), destH.roundToInt()),
