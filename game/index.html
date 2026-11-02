@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#fff0cf">
   <meta name="description" content="Join Sage and Pips on a pixel-art forest adventure.">
   <link rel="icon" type="image/png" href="../iphone/icon-192.png">
-  <link rel="stylesheet" href="./style.css?v=20261103">
+  <link rel="stylesheet" href="./style.css?v=20261103-layout2">
   <title>Sage &amp; Pips: Snack Quest</title>
 </head>
 <body>
@@ -55,6 +55,7 @@
           </div>
           <button id="restart-button" class="restart-button" type="button" aria-label="Restart level">↻ <span>Restart</span></button>
         </div>
+        <div class="play-stage">
         <div class="game-frame">
           <canvas id="game-canvas" width="960" height="540" aria-label="Sage and Pips platform game"></canvas>
           <div class="hud">
@@ -69,7 +70,8 @@
               <button id="overlay-button" class="start-button" type="button">Continue</button>
             </div>
           </div>
-          <div class="game-controls" aria-label="Game controls">
+        </div>
+          <div class="game-controls" role="group" aria-label="Game controls">
             <div class="move-controls">
               <button class="touch-control" data-control="left" type="button" aria-label="Move left">←</button>
               <button class="touch-control" data-control="right" type="button" aria-label="Move right">→</button>
