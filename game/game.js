@@ -21,11 +21,11 @@
   const soundButton = document.querySelector("#sound-button");
 
   const assets = {
-    cats: loadImage("./assets/cats-and-enemies.png"),
-    background: loadImage("./assets/forest-background.png"),
-    foreground: loadImage("./assets/forest-foreground.png"),
-    platform: loadImage("./assets/platform.png"),
-    items: loadImage("./assets/items.png")
+    cats: loadImage("./assets/cats-and-enemies.png?v=20261103"),
+    background: loadImage("./assets/forest-background.png?v=20261103"),
+    foreground: loadImage("./assets/forest-foreground.png?v=20261103"),
+    platform: loadImage("./assets/platform.png?v=20261103"),
+    items: loadImage("./assets/items.png?v=20261103")
   };
   let assetsReady = false;
   let selectedCat = localStorage.getItem("snack-quest-cat") || "sage";
