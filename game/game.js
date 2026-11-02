@@ -22,9 +22,6 @@
 
   const assets = {
     cats: loadImage("./assets/cats-and-enemies.png?v=20261103"),
-    background: loadImage("./assets/forest-background.png?v=20261103"),
-    foreground: loadImage("./assets/forest-foreground.png?v=20261103"),
-    platform: loadImage("./assets/platform.png?v=20261103"),
     items: loadImage("./assets/items.png?v=20261103")
   };
   let assetsReady = false;
@@ -45,10 +42,8 @@
   let feeders = [];
   const keys = new Set();
   const input = { left: false, right: false, jumpQueued: false };
-  let musicTimer = null;
   let audioContext = null;
   let masterGain = null;
-  let musicNote = 0;
   let soundOn = localStorage.getItem("snack-quest-sound") !== "off";
   const catMeow = new Audio("../iphone/cat_meow.mp3");
   const catPurr = new Audio("../iphone/cat_purr.mp3");
@@ -133,24 +128,13 @@
 
   function startMusic() {
     setAudio();
-    stopMusic();
-    musicNote = 0;
-    const melody = [523, 659, 784, 659, 587, 698, 880, 698, 523, 659, 784, 1047, 880, 784, 659, 587,
-      523, 659, 784, 659, 587, 698, 880, 698, 523, 587, 659, 784, 659, 587, 523, 392];
-    const bass = [131, 131, 165, 165, 175, 175, 147, 147];
-    musicTimer = window.setInterval(() => {
-      if (!soundOn || !audioContext) return;
-      const i = musicNote % melody.length;
-      const now = audioContext.currentTime;
-      tone(melody[i], .145, "square", .018, now);
-      if (musicNote % 4 === 0) tone(bass[Math.floor(musicNote / 4) % bass.length], .36, "triangle", .025, now);
-      musicNote += 1;
-    }, 185);
+    if (soundOn && !document.hidden && window.SnackQuestMusic) {
+      window.SnackQuestMusic.start(audioContext, masterGain);
+    }
   }
 
   function stopMusic() {
-    if (musicTimer) window.clearInterval(musicTimer);
-    musicTimer = null;
+    if (window.SnackQuestMusic) window.SnackQuestMusic.stop();
   }
 
   function updateSoundButton() {
@@ -494,24 +478,38 @@
   }
 
   function drawBackground() {
-    ctx.fillStyle = "#79d4e7";
+    ctx.fillStyle = "#e1e7de";
     ctx.fillRect(0, 0, W, H);
-    const bg = assets.background;
-    if (bg.naturalWidth) {
-      const w = W * 1.45;
-      const h = w * bg.naturalHeight / bg.naturalWidth;
-      const offset = Math.min(w - W, cameraX * .035);
-      ctx.drawImage(bg, -offset, (H - h) / 2 - 12, w, h);
+    // Paint a few large shapes on a coarse pixel grid. The quiet palette
+    // and empty space keep the detailed cat sprites easy to see.
+    ctx.save();
+    ctx.scale(3, 3);
+    const cloudOffset = Math.floor(cameraX * .008 / 3);
+    ctx.fillStyle = "#f0f1e9";
+    for (const x of [58 - cloudOffset, 242 - cloudOffset]) {
+      ctx.fillRect(x, 34, 43, 5);
+      ctx.fillRect(x + 8, 29, 25, 5);
+      ctx.fillRect(x + 16, 25, 10, 4);
     }
-    const fg = assets.foreground;
-    if (fg.naturalWidth) {
-      const w = W * 1.3;
-      const h = w * fg.naturalHeight / fg.naturalWidth;
-      const offset = (cameraX * .77) % w;
-      const y = H - h + 140;
-      ctx.drawImage(fg, -offset, y, w, h);
-      ctx.drawImage(fg, -offset + w, y, w, h);
-    }
+    const ridge = (points, color, speed) => {
+      const offset = Math.floor(cameraX * speed / 3) % 320;
+      ctx.fillStyle = color;
+      for (const shift of [-offset, 320 - offset]) {
+        ctx.beginPath();
+        ctx.moveTo(shift, 180);
+        for (const [x, y] of points) ctx.lineTo(x + shift, y);
+        ctx.lineTo(320 + shift, 180);
+        ctx.closePath();
+        ctx.fill();
+      }
+    };
+    ridge([[0,106],[28,106],[28,99],[51,99],[51,92],[75,92],[75,99],
+      [98,99],[98,106],[158,106],[158,101],[182,101],[182,94],
+      [214,94],[214,101],[246,101],[246,106],[320,106]], "#cdd7c9", .035);
+    ridge([[0,133],[32,133],[32,126],[64,126],[64,120],[97,120],[97,126],
+      [128,126],[128,133],[170,133],[170,126],[203,126],[203,119],
+      [235,119],[235,126],[266,126],[266,133],[320,133]], "#bdcbb6", .07);
+    ctx.restore();
   }
 
   function drawWorldSprite(image, sourceX, sourceY, sourceW, sourceH, x, y, w, h, flip) {
@@ -528,14 +526,21 @@
   }
 
   function drawPlatforms() {
-    const image = assets.platform;
-    if (!image.naturalWidth) return;
     for (const p of platforms) {
       if (p.x + p.w < cameraX - 40 || p.x > cameraX + W + 40) continue;
       const x = Math.floor(p.x - cameraX);
-      const y = Math.floor(p.y - 13);
-      const h = p.w > 350 ? 72 : 58;
-      ctx.drawImage(image, x, y, p.w, h);
+      const y = p.y + 4;
+      const h = p.w > 350 ? H - y : 32;
+      ctx.fillStyle = "#68765b";
+      ctx.fillRect(x, y, p.w, h);
+      ctx.fillStyle = "#b4a58b";
+      ctx.fillRect(x + 2, y + 11, p.w - 4, h - 13);
+      ctx.fillStyle = "#909f76";
+      ctx.fillRect(x + 2, y + 2, p.w - 4, 9);
+      ctx.fillStyle = "#b4c197";
+      ctx.fillRect(x + 2, y + 2, p.w - 4, 3);
+      ctx.fillStyle = "#a0927a";
+      ctx.fillRect(x + 2, y + h - 6, p.w - 4, 4);
     }
   }
 
@@ -587,9 +592,9 @@
     let frame = 0;
     if (!player.grounded) frame = 3;
     else if (Math.abs(player.vx) > 30) frame = Math.floor(player.anim) % 2 === 0 ? 1 : 2;
-    const x = player.x - cameraX - 30;
-    const y = player.y - 25;
-    drawWorldSprite(assets.cats, frame * cw, row * ch, cw, ch, x, y, 106, 102, player.dir < 0);
+    const x = player.x - cameraX - 38;
+    const y = player.y - 39;
+    drawWorldSprite(assets.cats, frame * cw, row * ch, cw, ch, x, y, 122, 118, player.dir < 0);
   }
 
   function draw() {
