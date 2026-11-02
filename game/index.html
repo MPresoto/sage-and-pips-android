@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff0cf">
+  <meta name="description" content="Join Sage and Pips on a pixel-art forest adventure.">
+  <link rel="icon" type="image/png" href="../iphone/icon-192.png">
+  <link rel="stylesheet" href="./style.css">
+  <title>Sage &amp; Pips: Snack Quest</title>
+</head>
+<body>
+  <div class="game-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Sage and Pips Snack Quest home">
+        <span class="brand-mark" aria-hidden="true">🐾</span>
+        <span>Sage &amp; Pips <em>Snack Quest</em></span>
+      </a>
+      <div class="header-actions">
+        <button id="sound-button" class="icon-button" type="button" aria-label="Mute sound" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path d="M16 9.5a4 4 0 0 1 0 5M18.5 7a7.5 7.5 0 0 1 0 10"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section id="select-screen" class="select-screen">
+        <div class="select-backdrop" aria-hidden="true"></div>
+        <div class="select-panel">
+          <div class="panel-paw" aria-hidden="true">🐾</div>
+          <h1>Sage &amp; Pips:<br><span>Snack Quest</span></h1>
+          <p class="prompt">Who will lead the adventure?</p>
+          <div class="character-picker" role="group" aria-label="Choose your cat">
+            <button class="character-card is-selected" data-cat="sage" type="button" aria-pressed="true">
+              <canvas class="portrait" width="180" height="140" aria-hidden="true"></canvas>
+              <span class="character-name">SAGE</span>
+              <small>Strong jump</small>
+            </button>
+            <button class="character-card" data-cat="pips" type="button" aria-pressed="false">
+              <canvas class="portrait" width="180" height="140" aria-hidden="true"></canvas>
+              <span class="character-name">PIPS</span>
+              <small>Quick paws</small>
+            </button>
+          </div>
+          <button id="start-button" class="start-button" type="button">Start adventure <span aria-hidden="true">➜</span></button>
+          <p class="select-help">ARROWS / TOUCH TO MOVE <span>·</span> SPACE / JUMP TO LEAP</p>
+        </div>
+      </section>
+
+      <section id="play-screen" class="play-screen" hidden>
+        <div class="play-heading">
+          <div>
+            <h1>Blue Blanket Meadow</h1>
+            <p id="status-copy">Collect treats and reach the paw gate.</p>
+          </div>
+          <button id="restart-button" class="restart-button" type="button" aria-label="Restart level">↻ <span>Restart</span></button>
+        </div>
+        <div class="game-frame">
+          <canvas id="game-canvas" width="960" height="540" aria-label="Sage and Pips platform game"></canvas>
+          <div class="hud">
+            <div class="energy-readout"><span class="hud-label">ENERGY</span><div id="energy-hearts" class="hearts" aria-label="Five energy points"></div></div>
+            <div class="treat-readout"><span aria-hidden="true">🐟</span><span id="treat-count">TREATS 00</span></div>
+          </div>
+          <div id="game-overlay" class="game-overlay" hidden>
+            <div class="overlay-panel">
+              <div id="overlay-icon" class="overlay-icon" aria-hidden="true">🐾</div>
+              <h2 id="overlay-title">Ready?</h2>
+              <p id="overlay-copy">Sage and Pips need your help!</p>
+              <button id="overlay-button" class="start-button" type="button">Continue</button>
+            </div>
+          </div>
+          <div class="game-controls" aria-label="Game controls">
+            <div class="move-controls">
+              <button class="touch-control" data-control="left" type="button" aria-label="Move left">←</button>
+              <button class="touch-control" data-control="right" type="button" aria-label="Move right">→</button>
+            </div>
+            <button class="touch-control jump-control" data-control="jump" type="button" aria-label="Jump">JUMP <span aria-hidden="true">↑</span></button>
+          </div>
+        </div>
+        <p class="control-hint"><kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd> to move <span>·</span> <kbd>SPACE</kbd> or <kbd>↑</kbd> to jump <span>·</span> Jump on a monster to bounce it away!</p>
+      </section>
+      <noscript>This little adventure needs JavaScript turned on to play.</noscript>
+    </main>
+    <footer><span>Made for Sage &amp; Pips</span><span>Every snack brings a little more energy.</span></footer>
+  </div>
+  <script src="./game.js" defer></script>
+</body>
+</html>
