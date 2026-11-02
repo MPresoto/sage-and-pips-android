@@ -67,6 +67,13 @@ main { display: flex; flex-direction: column; gap: 18px; }
 .action.selected { background: var(--sage); color: #fff; }
 .action.selected span { color: #fff; }
 .action-wide { grid-column: 1 / -1; }
+.quest-link { display:flex; align-items:center; gap:11px; padding:13px 14px; border-radius:19px; background:#789178; color:#fff; text-decoration:none; box-shadow:0 3px 0 #5E775F; }
+.quest-link:active { transform:translateY(2px); box-shadow:0 1px 0 #5E775F; }
+.quest-paw { font-size:23px; }
+.quest-link > span:nth-child(2) { display:flex; flex:1; min-width:0; flex-direction:column; gap:2px; }
+.quest-link strong { font-size:13px; }
+.quest-link small { color:#F1F4E9; font-size:11px; }
+.quest-arrow { font-size:20px; font-weight:800; }
 .cat-note { display: flex; align-items: center; gap: 10px; padding: 14px; border-radius: 20px; background: #ECE5D8; }
 .cat-note > span { font-size: 21px; }
 .cat-note div { display: flex; flex-direction: column; gap: 2px; }
