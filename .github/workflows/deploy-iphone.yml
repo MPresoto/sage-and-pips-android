@@ -1,9 +1,10 @@
-name: Deploy Sage & Pips iPhone app
+name: Deploy Sage & Pips apps to GitHub Pages
 on:
   push:
     branches: [ main ]
     paths:
       - 'iphone/**'
+      - 'game/**'
       - '.github/workflows/deploy-iphone.yml'
   workflow_dispatch:
 permissions:
@@ -22,9 +23,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Assemble the site
+        run: |
+          mkdir -p _site/game
+          cp -R iphone/. _site/
+          mkdir -p _site/iphone
+          cp -R iphone/. _site/iphone/
+          cp -R game/. _site/game/
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: iphone
+          path: _site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
