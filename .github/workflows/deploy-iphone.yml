@@ -6,6 +6,7 @@ on:
       - 'iphone/**'
       - 'game/**'
       - 'myrtle/**'
+      - 'shiro/**'
       - '.github/workflows/deploy-iphone.yml'
   workflow_dispatch:
 permissions:
@@ -33,6 +34,8 @@ jobs:
           cp -R game/. _site/game/
           mkdir -p _site/myrtle
           cp -R myrtle/. _site/myrtle/
+          mkdir -p _site/shiro
+          cp -R shiro/. _site/shiro/
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
