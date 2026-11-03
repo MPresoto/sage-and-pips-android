@@ -1,4 +1,4 @@
-const CACHE = "sage-pips-iphone-v3";
+const CACHE = "sage-pips-iphone-v4";
 const FILES = [
   "./", "./index.html", "./style.css", "./app.js", "./manifest.webmanifest",
   "./icon-180.png", "./icon-192.png", "./icon-512.png",
@@ -17,9 +17,10 @@ self.addEventListener("fetch", event => {
   const requestUrl = new URL(event.request.url);
   const gamePath = new URL("./game/", self.registration.scope).pathname;
   const myrtlePath = new URL("./myrtle/", self.registration.scope).pathname;
+  const shiroPath = new URL("./shiro/", self.registration.scope).pathname;
   // Let the browser load game releases from the network instead of
   // retaining an older game page in the pet app's offline cache.
-  if (requestUrl.origin !== self.location.origin || requestUrl.pathname.startsWith(gamePath) || requestUrl.pathname.startsWith(myrtlePath)) return;
+  if (requestUrl.origin !== self.location.origin || requestUrl.pathname.startsWith(gamePath) || requestUrl.pathname.startsWith(myrtlePath) || requestUrl.pathname.startsWith(shiroPath)) return;
   event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
     if (response.ok) {
       const copy = response.clone();
