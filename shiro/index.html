@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff0cf">
+  <meta name="description" content="Help Shiro the white cat catch flies and find his friends Sage and Pips.">
+  <link rel="icon" type="image/png" href="../iphone/icon-192.png">
+  <link rel="stylesheet" href="./style.css?v=shiro1">
+  <title>Shiro: Fly Snack Adventure</title>
+</head>
+<body>
+  <div class="game-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Shiro Fly Snack Adventure home">
+        <span class="brand-mark" aria-hidden="true">🐾</span>
+        <span>Shiro <em>Fly Snack Adventure</em></span>
+      </a>
+      <div class="header-actions">
+        <button id="sound-button" class="icon-button" type="button" aria-label="Mute sound" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path d="M16 9.5a4 4 0 0 1 0 5M18.5 7a7.5 7.5 0 0 1 0 10"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section id="select-screen" class="select-screen" aria-labelledby="adventure-title">
+        <div class="select-backdrop" aria-hidden="true"></div>
+        <div class="select-panel">
+          <h1 id="adventure-title">Shiro<br><span>Fly Snack Adventure</span></h1>
+          <div class="shiro-intro">
+            <figure class="hero-cat">
+              <canvas id="shiro-portrait" class="portrait" width="240" height="180" role="img" aria-label="Shiro, a white cat"></canvas>
+              <figcaption class="character-name">SHIRO</figcaption>
+            </figure>
+            <div class="intro-copy">
+              <p class="prompt">White coat. Big appetite.</p>
+              <p class="hero-story">Sage and Pips are waiting across the meadow. There might be a few flying snacks along the way…</p>
+              <ul class="adventure-rules">
+                <li><span aria-hidden="true">✦</span><span><strong>Catch flies</strong> for points</span></li>
+                <li><span aria-hidden="true">↗</span><span><strong>Dodge other bugs</strong> to keep your energy</span></li>
+                <li><span aria-hidden="true">♡</span><span><strong>Find Sage &amp; Pips</strong> for a playdate</span></li>
+              </ul>
+            </div>
+          </div>
+          <button id="start-button" class="start-button" type="button">Let’s go, Shiro! <span aria-hidden="true">➜</span></button>
+          <p class="select-help">ARROWS / TOUCH TO MOVE <span>·</span> SPACE / JUMP TO LEAP</p>
+        </div>
+      </section>
+
+      <section id="play-screen" class="play-screen" hidden>
+        <div class="play-heading">
+          <div>
+            <h1>Daisy Meadow</h1>
+            <p id="status-copy">Catch flies, dodge other bugs, and find your friends.</p>
+          </div>
+          <button id="restart-button" class="restart-button" type="button" aria-label="Restart level">↻ <span>Restart</span></button>
+        </div>
+        <div class="play-stage">
+          <div class="game-frame">
+            <canvas id="game-canvas" width="960" height="540" aria-label="Shiro platform game"></canvas>
+            <div class="hud">
+              <div class="energy-readout"><span class="hud-label">ENERGY</span><div id="energy-hearts" class="hearts" aria-label="Five energy points"></div></div>
+              <div class="hud-stats">
+                <div class="stat-readout fly-readout"><span id="fly-count">FLIES 00</span></div>
+                <div class="stat-readout"><span id="treat-count">TREATS 00</span></div>
+                <div class="stat-readout score-readout"><span id="score-count">SCORE 0000</span></div>
+              </div>
+            </div>
+            <div id="game-overlay" class="game-overlay" hidden>
+              <div class="overlay-panel">
+                <div id="overlay-icon" class="overlay-icon" aria-hidden="true">🐾</div>
+                <h2 id="overlay-title">Ready, Shiro?</h2>
+                <p id="overlay-copy">Your friends are waiting!</p>
+                <button id="overlay-button" class="start-button" type="button">Continue</button>
+              </div>
+            </div>
+          </div>
+          <div class="game-controls" role="group" aria-label="Game controls">
+            <div class="move-controls">
+              <button class="touch-control" data-control="left" type="button" aria-label="Move left">←</button>
+              <button class="touch-control" data-control="right" type="button" aria-label="Move right">→</button>
+            </div>
+            <button class="touch-control jump-control" data-control="jump" type="button" aria-label="Jump">JUMP <span aria-hidden="true">↑</span></button>
+          </div>
+        </div>
+        <p id="reunion-status" class="reunion-status" role="status" aria-live="polite" hidden></p>
+        <p class="control-hint"><kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd> to move <span>·</span> <kbd>SPACE</kbd> or <kbd>↑</kbd> to jump <span>·</span> Flies are snacks. Other bugs are trouble!</p>
+      </section>
+      <noscript>Shiro’s adventure needs JavaScript turned on to play.</noscript>
+    </main>
+    <footer><span>Made for Shiro</span><span>A little adventure. Three good friends.</span></footer>
+  </div>
+  <script src="../game/music.js?v=20261103-calm3" defer></script>
+  <script src="./game.js?v=shiro1" defer></script>
+</body>
+</html>
